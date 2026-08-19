@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+require_relative "../lib/borg/cli"
+
+cli = Borg::Cli.new
+cli.run
