@@ -8,7 +8,7 @@ class CubeFile
   def self.files_to_base64_hash
     files = {}
 
-    Rails.root.glob("storage/cube_files/*.rb").each do |file_path|
+    Rails.root.glob("storage/borg_cube_files/*.rb").each do |file_path|
       next unless File.file?(file_path) # skip directories
 
       filename = File.basename(file_path)

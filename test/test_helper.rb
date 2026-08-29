@@ -5,11 +5,11 @@ require "simplecov"
 SimpleCov.start "rails" do
   enable_coverage :branch
   minimum_coverage line: 80, branch: 80
-  add_filter %w[
-    app/channels
-    app/jobs
-  ]
 end
+SimpleCov.skip %w[
+  app/channels
+  app/jobs
+]
 
 require_relative "../config/environment"
 require "rails/test_help"
