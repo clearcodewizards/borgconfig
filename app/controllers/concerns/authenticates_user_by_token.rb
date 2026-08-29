@@ -6,11 +6,10 @@ module AuthenticatesUserByToken
   end
 
   def authenticate_by_token!
-    authenticate_with_http_token do |token, _options|
-      return render json: {}, status: :unauthorized unless token
+    token, = ActionController::HttpAuthentication::Token.token_and_options(request)
+    return render json: {}, status: :unauthorized if token.blank?
 
-      @user = User.find_by(api_token: token)
-      return render json: {},  status: :unauthorized unless @user
-    end
+    @user = User.find_by(api_token: token)
+    render json: {}, status: :unauthorized unless @user
   end
 end

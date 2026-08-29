@@ -8,11 +8,12 @@ module Api
       end
 
       def create
-        authenticate_with_http_token do |token, _options|
-          return render json: {}, status: :unauthorized unless token
+        token, = ActionController::HttpAuthentication::Token.token_and_options(request)
+        return render json: {}, status: :unauthorized if token.blank?
 
-          cube = Cube.find_by(api_token: token)
-          Cube.create(api_token: token, name: Haikunator.haikunate(1000), status: :pending) if cube.nil?
+        Cube.find_or_create_by!(api_token: token) do |cube|
+          cube.name = Haikunator.haikunate(1000)
+          cube.status = :pending
         end
 
         render json: {}, status: :ok

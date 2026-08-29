@@ -1,8 +1,47 @@
 # Omakase Ruby styling for Rails
 inherit_gem: { rubocop-rails-omakase: rubocop.yml }
 
+AllCops:
+  NewCops: enable
+
+# All cops except your using extensions are disabled by default.
+Bundler:
+  Enabled: true
+Layout:
+  Enabled: true
+Lint:
+  Enabled: true
+Naming:
+  Enabled: true
+Performance:
+  Enabled: true
+  Exclude:
+    - "test/**/*"
+Rails:
+  Enabled: true
+Security:
+  Enabled: true
+Style:
+  Enabled: true
+
 # Overwrite or add rules to create your own house style
 #
 # # Use `[a, [b, c]]` not `[ a, [ b, c ] ]`
-# Layout/SpaceInsideArrayLiteralBrackets:
-#   Enabled: false
+Layout/IndentationConsistency:
+  Enabled: true
+  EnforcedStyle: normal
+
+Layout/SpaceInsideArrayLiteralBrackets:
+  Enabled: false
+
+Rails/I18nLocaleTexts:
+  Enabled: false
+
+Rails/DynamicFindBy:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: false

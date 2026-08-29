@@ -6,11 +6,10 @@ module AuthenticatesCubeByToken
   end
 
   def authenticate_by_token!
-    authenticate_with_http_token do |token, _options|
-      return render json: {}, status: :unauthorized unless token
+    token, = ActionController::HttpAuthentication::Token.token_and_options(request)
+    return render json: {}, status: :unauthorized if token.blank?
 
-      @cube = Cube.find_by(api_token: token, registered: true)
-      return render json: {},  status: :unauthorized unless @cube
-    end
+    @cube = Cube.find_by(api_token: token, registered: true)
+    render json: {}, status: :unauthorized unless @cube
   end
 end
