@@ -22,6 +22,12 @@ Rails.application.configure do
   config.consider_all_requests_local = true
   config.cache_store = :null_store
 
+  # Test data is disposable, so use fixed keys instead of requiring production
+  # credentials (and RAILS_MASTER_KEY) in CI.
+  config.active_record.encryption.primary_key = "test-primary-key-for-active-record-encryption"
+  config.active_record.encryption.deterministic_key = "test-deterministic-key-for-active-record-encryption"
+  config.active_record.encryption.key_derivation_salt = "test-key-derivation-salt-for-active-record-encryption"
+
   # Render exception templates for rescuable exceptions and raise for other exceptions.
   config.action_dispatch.show_exceptions = :rescuable
 
