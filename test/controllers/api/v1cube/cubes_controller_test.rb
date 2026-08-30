@@ -15,13 +15,13 @@ module Api
   test "creates and attaches tags to a new cube" do
     assert_difference({ "Cube.count" => 1, "Tag.count" => 2, "CubeTag.count" => 2 }) do
       post api_v1cube_cubes_url,
-        params: { tags: [ "linux", "x86_64" ] },
-        headers: token_header("tagged-token"),
-        as: :json
+           params: { tags: %w[linux x86_64] },
+           headers: token_header("tagged-token"),
+           as: :json
     end
 
     assert_response :ok
-    assert_equal [ "linux", "x86_64" ], Cube.find_by!(api_token: "tagged-token").tags.order(:name).pluck(:name)
+    assert_equal %w[linux x86_64], Cube.find_by!(api_token: "tagged-token").tags.order(:name).pluck(:name)
   end
 
   test "reuses existing tags and does not duplicate attachments" do
@@ -31,9 +31,9 @@ module Api
       assert_difference "Tag.count", 1 do
         assert_difference "CubeTag.count", 2 do
           post api_v1cube_cubes_url,
-            params: { tags: [ "linux", "linux", "x86_64" ] },
-            headers: token_header("tagged-token"),
-            as: :json
+               params: { tags: %w[linux linux x86_64] },
+               headers: token_header("tagged-token"),
+               as: :json
         end
       end
     end
@@ -43,21 +43,21 @@ module Api
 
     assert_no_difference [ "Cube.count", "Tag.count", "CubeTag.count" ] do
       post api_v1cube_cubes_url,
-        params: { tags: [ "linux", "x86_64" ] },
-        headers: token_header("tagged-token"),
-        as: :json
+           params: { tags: %w[linux x86_64] },
+           headers: token_header("tagged-token"),
+           as: :json
     end
 
     assert_response :ok
 
     assert_difference({ "Tag.count" => 1, "CubeTag.count" => 1 }) do
       post api_v1cube_cubes_url,
-        params: { tags: [ "arm64" ] },
-        headers: token_header("tagged-token"),
-        as: :json
+           params: { tags: [ "arm64" ] },
+           headers: token_header("tagged-token"),
+           as: :json
     end
 
-    assert_equal [ "arm64", "linux", "x86_64" ], cube.tags.reload.order(:name).pluck(:name)
+    assert_equal %w[arm64 linux x86_64], cube.tags.reload.order(:name).pluck(:name)
   end
 
   test "does not duplicate an existing cube" do
