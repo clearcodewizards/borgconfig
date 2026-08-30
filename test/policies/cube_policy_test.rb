@@ -3,7 +3,7 @@ require "test_helper"
 class CubePolicyTest < ActiveSupport::TestCase
   test "defines cube attributes exposed by tools" do
     assert_equal %i[id name registered status created_at updated_at],
-      CubePolicy.new(users(:one), Cube.new).expected_attributes_for_action(:show)
+                 CubePolicy.new(users(:one), Cube.new).expected_attributes_for_action(:show)
   end
 
   test "admin scope includes cubes" do

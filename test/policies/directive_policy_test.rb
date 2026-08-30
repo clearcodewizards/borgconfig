@@ -3,7 +3,7 @@ require "test_helper"
 class DirectivePolicyTest < ActiveSupport::TestCase
   test "defines directive attributes exposed by tools" do
     assert_equal %i[id status filename arguments output created_at updated_at],
-      DirectivePolicy.new(users(:one), Directive.new).expected_attributes_for_action(:show)
+                 DirectivePolicy.new(users(:one), Directive.new).expected_attributes_for_action(:show)
   end
 
   test "admin scope includes directives" do
