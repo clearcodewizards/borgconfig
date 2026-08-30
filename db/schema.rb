@@ -10,7 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_06_19_110501) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_30_100902) do
+  create_table "cube_tags", force: :cascade do |t|
+    t.integer "cube_id", null: false
+    t.integer "tag_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["cube_id"], name: "index_cube_tags_on_cube_id"
+    t.index ["tag_id"], name: "index_cube_tags_on_tag_id"
+  end
+
   create_table "cubes", force: :cascade do |t|
     t.string "api_token", null: false
     t.string "name", null: false
@@ -43,6 +52,13 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_19_110501) do
     t.index ["user_id"], name: "index_sessions_on_user_id"
   end
 
+  create_table "tags", force: :cascade do |t|
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_tags_on_name", unique: true
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email_address", null: false
     t.string "password_digest", null: false
@@ -55,6 +71,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_19_110501) do
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end
 
+  add_foreign_key "cube_tags", "cubes"
+  add_foreign_key "cube_tags", "tags"
   add_foreign_key "directives", "cubes"
   add_foreign_key "directives", "directives", column: "depends_on_id"
   add_foreign_key "sessions", "users"

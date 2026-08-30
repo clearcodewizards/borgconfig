@@ -1,5 +1,7 @@
 class Cube < ApplicationRecord
   has_many :directives, dependent: :destroy
+  has_many :cube_tags, dependent: :destroy
+  has_many :tags, through: :cube_tags
 
   encrypts :api_token, deterministic: true
 

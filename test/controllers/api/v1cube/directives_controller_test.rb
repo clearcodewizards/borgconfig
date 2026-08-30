@@ -9,10 +9,10 @@ module Api
   end
 
   test "lists only pending directives for the cube" do
-    pending_directive = @cube.directives.create!(filename: "pending.rb")
-    @cube.directives.create!(filename: "done.rb", status: :completed)
+    pending_directive = @cube.directives.create!(filename: "ping.rb")
+    @cube.directives.create!(filename: "borg_client.rb", status: :completed)
     other = Cube.create!(name: "Other", api_token: "other", registered: true)
-    other.directives.create!(filename: "other.rb")
+    other.directives.create!(filename: "ping.rb")
 
     get api_v1cube_directives_url, headers: @headers
 
@@ -31,7 +31,7 @@ module Api
 
   test "does not show another cube's directive" do
     other = Cube.create!(name: "Other", api_token: "other", registered: true)
-    directive = other.directives.create!(filename: "private.rb")
+    directive = other.directives.create!(filename: "ping.rb")
 
     get api_v1cube_directive_url(directive), headers: @headers
 

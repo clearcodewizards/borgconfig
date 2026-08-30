@@ -29,7 +29,7 @@ class BorgCube
     response = get("/api/v1cube/cubes")
     return true if response.status.success?
 
-    post("/api/v1cube/cubes")
+    post("/api/v1cube/cubes", { tags: [RUBY_PLATFORM] })
     false
   rescue Exception => e
     @logger.error "Error registering borg cube: #{e.message}"
