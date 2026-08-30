@@ -8,4 +8,8 @@ class Cube < ApplicationRecord
   enum :status, { pending: 0, in_progress: 1, completed: 2 }
 
   validates :api_token, uniqueness: true
+
+  scope :tagged_with, lambda { |name|
+    joins(:tags).where(tags: { name: name })
+  }
 end
