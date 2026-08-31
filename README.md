@@ -35,6 +35,58 @@ Cube API tokens are encrypted at rest using Active Record Encryption.
 
 ## Getting started
 
+### Try it with Docker
+
+For a disposable local demo, no Rails credentials are required:
+
+```sh
+docker compose up --build
+```
+
+Open <http://localhost:3000> and sign in with:
+
+- Email: `admin@localhost`
+- Password: `changeme`
+
+To print the administrator's bearer token for an MCP connection:
+
+```sh
+docker compose exec borgconfig bin/rails users:api_token
+```
+
+For another user, pass their email address:
+
+```sh
+docker compose exec borgconfig bin/rails users:api_token EMAIL=user@example.com
+```
+
+The Compose setup loads `.env.demo`, which contains public application and
+encryption keys and disables HTTPS for localhost. Do not use these values for a
+public deployment or store sensitive data in the demo.
+
+Application data is kept in the `borg_data` Docker volume between runs. To
+start over with a fresh database, remove that volume:
+
+```sh
+docker compose down --volumes
+```
+
+For a real deployment, provide unique values for `SECRET_KEY_BASE`,
+`ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY`,
+`ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY`, and
+`ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT`. Generate them with:
+
+```sh
+bin/rails secret
+bin/rails db:encryption:init
+```
+
+Keep these values stable across restarts; changing the Active Record Encryption
+keys makes existing encrypted values unreadable. HTTPS remains enabled unless
+`FORCE_SSL=false` is explicitly set.
+
+### Local development
+
 Install dependencies, prepare the database, and start the development processes:
 
 ```sh

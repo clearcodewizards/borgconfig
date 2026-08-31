@@ -1,0 +1,12 @@
+services:
+  borgconfig:
+    build: .
+    env_file:
+      - .env.demo
+    ports:
+      - "3000:3000"
+    volumes:
+      - borg_data:/rails/storage
+
+volumes:
+  borg_data:
