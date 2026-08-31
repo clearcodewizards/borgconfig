@@ -19,7 +19,7 @@ tools discover cubes and execute directives through a standard interface.
 - A cube introduces itself using an API token and receives a generated name.
 - An administrator approves the cube by marking it as registered.
 - The cube authenticates with the same token to poll for pending directives.
-- Directives identify a file to execute, carry optional arguments, and may
+- Directives identify a file to execute, carry arguments, and may
   depend on another directive.
 - The cube reports the directive's resulting status and output to the service.
 - AI tools and MCP clients connect to the MCP endpoint to inspect cubes and
@@ -125,48 +125,6 @@ bin/rails db:seed
 Change the default password immediately anywhere beyond a disposable local
 development environment.
 
-## API
-
-All API authentication uses a bearer token:
-
-```http
-Authorization: Bearer <token>
-Accept: application/json
-```
-
-### Cube API
-
-Except for initial registration, cube endpoints require the token of a cube
-whose `registered` flag is set to `true`.
-
-| Method | Endpoint | Description |
-| --- | --- | --- |
-| `POST` | `/api/v1cube/cubes` | Introduce a cube using a new token |
-| `GET` | `/api/v1cube/cubes` | Return the authenticated cube |
-| `GET` | `/api/v1cube/cube_files` | Return available Ruby files as Base64-encoded content |
-| `GET` | `/api/v1cube/directives` | List pending directives for the cube |
-| `GET` | `/api/v1cube/directives/:id` | Return one directive belonging to the cube |
-| `PATCH` | `/api/v1cube/directives/:id` | Update a directive's status and output |
-
-Initial cube registration:
-
-```sh
-curl \
-  -X POST \
-  -H "Authorization: Bearer $CUBE_TOKEN" \
-  -H "Accept: application/json" \
-  http://localhost:3000/api/v1cube/cubes
-```
-
-Registration creates a pending, unapproved cube when the supplied token is
-new. Before that cube can use the other cube endpoints, set its `registered`
-attribute to `true`, for example from the Rails console:
-
-```ruby
-cube = Cube.find_by!(api_token: ENV.fetch("CUBE_TOKEN"))
-cube.update!(registered: true)
-```
-
 ## MCP
 
 Borg Collective exposes its management interface as a stateless, Streamable
@@ -174,11 +132,10 @@ HTTP MCP endpoint at `POST /mcp`. MCP requests use a user's API token, not a
 cube token. Only administrators can currently list cubes and directives or
 create directives.
 
-Create or retrieve an administrator API token from the Rails console:
+Retrieve an administrator API token from the Rails console:
 
-```ruby
-user = User.find_by!(email_address: "admin@localhost")
-user.api_token
+```sh
+docker compose exec borgconfig bin/rails users:api_token
 ```
 
 Configure an MCP client with:
@@ -204,6 +161,7 @@ returned cube ID:
     "name": "create_directives",
     "arguments": {
       "filename": "ping.rb",
+      "arguments": "",
       "cube_ids": [1]
     }
   }
@@ -221,6 +179,7 @@ The same call can target every cube carrying a tag:
     "name": "create_directives",
     "arguments": {
       "filename": "ping.rb",
+      "arguments": "",
       "tags": ["x86_64-linux"]
     }
   }
@@ -235,13 +194,28 @@ curl http://localhost:3000/mcp \
   -H "Authorization: Bearer $USER_API_TOKEN" \
   -H "Content-Type: application/json" \
   -H "Accept: application/json" \
-  --data '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"create_directives","arguments":{"filename":"ping.rb","cube_ids":[1]}}}'
+  --data '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"create_directives","arguments":{"filename":"ping.rb","arguments":"","cube_ids":[1]}}}'
 ```
 
 The tool returns the created directive IDs. A connected cube polls for its
 pending directives, downloads `ping.rb`, executes `Ping.run`, and reports the
 result (`pong`) to Borg Collective. The cube must be running and have its
 `registered` flag set to `true`.
+
+To execute a command on a cube, create a directive using `command.rb` and put
+the shell command in `arguments`, for example:
+
+```json
+{
+  "filename": "command.rb",
+  "arguments": "uname -a",
+  "cube_ids": [1]
+}
+```
+
+The command directive returns the command's combined standard output and
+standard error as the directive output. Commands run with the permissions of
+the cube process, so only trusted users should be allowed to create them.
 
 The MCP endpoint is also intended to support command-line workflows. Instead
 of maintaining a project-specific CLI, users can connect with a general-purpose
@@ -264,7 +238,8 @@ bin/brakeman
 
 The application uses SQLite for its primary database and the Rails Solid
 adapters for cache, jobs, and Action Cable. Files distributed to cubes are read
-from `storage/borg_cube_files/*.rb`.
+from `lib/directives/*.rb`. The standalone cube runtime is stored in
+`lib/borg_cube`.
 
 ## Main domain objects
 

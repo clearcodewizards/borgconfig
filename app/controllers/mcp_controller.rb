@@ -16,7 +16,7 @@ class MCPController < ApplicationController
       instructions: "Use the tools of this server for interacting with the borg collective",
       tools: [
         Tools::Me, Tools::Cubes, Tools::RegisterCubes, Tools::UpdateCube,
-        Tools::Tags, Tools::Directives, Tools::CreateDirectives
+        Tools::Tags, Tools::Directives, Tools::DirectiveFiles, Tools::CreateDirectives
       ],
       prompts: [],
       server_context: { user_id: @user.id }
