@@ -1,5 +1,5 @@
 class Ping
-  def self.run(arguments)
+  def self.run(_arguments)
     "pong"
   end
 end

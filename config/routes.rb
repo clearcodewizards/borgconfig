@@ -17,7 +17,7 @@ Rails.application.routes.draw do
   namespace "api" do
     namespace "v1cube" do
       resources :cubes, only: %i[index create]
-      resources :cube_files, only: %i[index]
+      resources :directive_files, only: %i[index]
       resources :directives, only: %i[index show update]
     end
   end

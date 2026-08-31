@@ -16,6 +16,7 @@ module Tools
     response = Tools::CreateDirectives.call(
       server_context: @context,
       filename: "ping.rb",
+      arguments: "",
       cube_ids: [ by_id.id ],
       tags: [ "test" ]
     )
@@ -27,7 +28,7 @@ module Tools
 
   test "creates nothing without cube selectors" do
     assert_no_difference "Directive.count" do
-      response = Tools::CreateDirectives.call(server_context: @context, filename: "ping.rb")
+      response = Tools::CreateDirectives.call(server_context: @context, filename: "ping.rb", arguments: "")
       assert_equal [], JSON.parse(response.content.first[:text])
     end
   end

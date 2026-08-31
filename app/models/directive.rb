@@ -8,6 +8,6 @@ class Directive < ApplicationRecord
   validate :filename_exists
 
   def filename_exists
-    errors.add(:filename, "should exist") unless CubeFile.all.key?(filename)
+    errors.add(:filename, "should exist") unless DirectiveFile.all.key?(filename)
   end
 end

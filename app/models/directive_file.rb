@@ -1,6 +1,6 @@
 require "base64"
 
-class CubeFile
+class DirectiveFile
   def self.all
     files_to_base64_hash
   end
@@ -8,7 +8,7 @@ class CubeFile
   def self.files_to_base64_hash
     files = {}
 
-    Rails.root.glob("storage/borg_cube_files/*.rb").each do |file_path|
+    Rails.root.glob("lib/directives/*.rb").each do |file_path|
       next unless File.file?(file_path) # skip directories
 
       filename = File.basename(file_path)

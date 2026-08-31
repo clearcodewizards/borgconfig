@@ -6,13 +6,14 @@ module Tools
     input_schema(
       properties: {
         filename: { type: "string" },
+        arguments: { type: "string" },
         cube_ids: { type: "array", items: { type: "integer" }},
         tags: { type: "array", items: { type: "string" }}
       },
-      required: ["filename"]
+      required: %w[filename arguments]
     )
 
-    def self.call(server_context:, filename:, cube_ids: nil, tags: nil)
+    def self.call(server_context:, filename:, arguments:, cube_ids: nil, tags: nil)
       user = User.find(server_context[:user_id])
       cubes = Pundit.policy_scope(user, Cube)
 
@@ -24,7 +25,7 @@ module Tools
 
       directive_ids = []
       filtered_cubes&.each do |cube|
-        directive = Directive.create!(cube:, filename:)
+        directive = Directive.create!(cube:, filename:, arguments:)
         directive_ids << directive.id
       end
 

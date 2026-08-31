@@ -37,7 +37,7 @@ class BorgCube
   end
 
   def update_files
-    response = get("/api/v1cube/cube_files")
+    response = get("/api/v1cube/directive_files")
     @logger.debug response.parse
     response.parse.each do |file_name, file_content|
       File.write(file_name, Base64.strict_decode64(file_content))
