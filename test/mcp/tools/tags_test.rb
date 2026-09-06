@@ -5,7 +5,9 @@ module Tools
   test "serializes tag names" do
     Tag.create!(name: "test")
 
-    tags = JSON.parse(Tools::Tags.call.content.first[:text])
+    user = users(:one)
+    user.update!(role: :member)
+    tags = JSON.parse(Tools::Tags.call(server_context: { user_id: user.id }).content.first[:text])
 
     assert_equal [ "test" ], tags.pluck("name")
   end

@@ -15,6 +15,7 @@ module Tools
 
     def self.call(server_context:, filename:, arguments:, cube_ids: nil, tags: nil)
       user = User.find(server_context[:user_id])
+      Pundit.authorize(user, Directive.new(filename:, arguments:), :create?)
       cubes = Pundit.policy_scope(user, Cube)
 
       filtered_cubes = []
@@ -24,13 +25,15 @@ module Tools
       end
 
       directive_ids = []
-      filtered_cubes&.each do |cube|
+      filtered_cubes.each do |cube|
         directive = Directive.create!(cube:, filename:, arguments:)
         directive_ids << directive.id
       end
 
       MCP::Tool::Response.new([{ type: "text", text: directive_ids.to_json }],
                               error: false)
+    rescue Pundit::NotAuthorizedError
+      MCP::Tool::Response.new([{ type: "text", text: "Not authorized to create directives." }], error: true)
     end
   end
 end

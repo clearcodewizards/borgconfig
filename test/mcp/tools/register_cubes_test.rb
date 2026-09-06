@@ -42,7 +42,7 @@ module Tools
 
     response = Tools::RegisterCubes.call(server_context: { user_id: member.id })
 
-    assert_equal [], JSON.parse(response.content.first[:text])
+    assert response.error?
     assert_not cube.reload.registered?
   end
   end

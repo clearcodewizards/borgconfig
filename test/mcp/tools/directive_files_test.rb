@@ -3,7 +3,9 @@ require "test_helper"
 module Tools
   class DirectiveFilesTest < ActiveSupport::TestCase
     test "returns public directive filenames and descriptions" do
-      response = Tools::DirectiveFiles.call
+      user = users(:one)
+      user.update!(role: :member)
+      response = Tools::DirectiveFiles.call(server_context: { user_id: user.id })
       directive_files = JSON.parse(response.content.first[:text]).index_by { |file| file.fetch("filename") }
 
       assert_not response.error?

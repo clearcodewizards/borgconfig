@@ -11,6 +11,7 @@ module Tools
 
     def self.call(server_context:, id: nil)
       user = User.find(server_context[:user_id])
+      Pundit.authorize(user, Cube, :update?)
       cubes = Pundit.policy_scope(user, Cube)
 
       cubes = if id
@@ -28,6 +29,8 @@ module Tools
                                  text: cubes.to_json(only: attributes,
                                                      include: { tags: { only: :name } }) }],
                               error: false)
+    rescue Pundit::NotAuthorizedError
+      MCP::Tool::Response.new([{ type: "text", text: "Not authorized to register cubes." }], error: true)
     end
   end
 end

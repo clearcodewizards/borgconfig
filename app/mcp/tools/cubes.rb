@@ -13,6 +13,7 @@ module Tools
 
     def self.call(server_context:, id: nil, name: nil, tag: nil)
       user = User.find(server_context[:user_id])
+      Pundit.authorize(user, Cube, id ? :show? : :index?)
       cubes = Pundit.policy_scope(user, Cube)
 
       cubes = cubes.where(id: id) if id
@@ -27,6 +28,8 @@ module Tools
                                  text: cubes.to_json(only: attributes,
                                                      include: { tags: { only: :name } }) }],
                               error: false)
+    rescue Pundit::NotAuthorizedError
+      MCP::Tool::Response.new([{ type: "text", text: "Not authorized to view cubes." }], error: true)
     end
   end
 end

@@ -9,15 +9,15 @@ class ApplicationPolicy
   end
 
   def index?
-    false
+    user && User.roles.fetch(user.role, -1) >= User.roles.fetch("member")
   end
 
   def show?
-    false
+    index?
   end
 
   def create?
-    false
+    @user.admin?
   end
 
   def new?
@@ -25,7 +25,7 @@ class ApplicationPolicy
   end
 
   def update?
-    false
+    @user.admin?
   end
 
   def edit?
@@ -33,7 +33,7 @@ class ApplicationPolicy
   end
 
   def destroy?
-    false
+    @user.admin?
   end
 
   class Scope

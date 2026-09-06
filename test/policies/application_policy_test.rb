@@ -21,6 +21,20 @@ class ApplicationPolicyTest < ActiveSupport::TestCase
     assert @policy.new?
   end
 
+  test "members and higher roles can read while only admins can write" do
+    user = users(:one)
+    User.roles.each_key do |role|
+      user.role = role
+      policy = ApplicationPolicy.new(user, User)
+
+      assert_equal role != "guest", policy.index?
+      assert_equal role != "guest", policy.show?
+      %i[create? new? update? edit? destroy?].each do |action|
+        assert_equal role == "admin", policy.public_send(action)
+      end
+    end
+  end
+
   test "edit delegates to update" do
     @policy.define_singleton_method(:update?) { true }
 
