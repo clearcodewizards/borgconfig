@@ -25,7 +25,7 @@ tools discover cubes and execute directives through a standard interface.
 - AI tools and MCP clients connect to the MCP endpoint to inspect cubes and
   manage their work.
 
-Cube API tokens are encrypted at rest using Active Record Encryption.
+Cube and user API tokens are encrypted at rest using Active Record Encryption.
 
 ## Requirements
 
@@ -129,10 +129,11 @@ development environment.
 
 Borg Collective exposes its management interface as a stateless, Streamable
 HTTP MCP endpoint at `POST /mcp`. MCP requests use a user's API token, not a
-cube token. Only administrators can currently list cubes and directives or
-create directives.
+cube token. Read actions require `member` or higher. Current policy scopes
+expose cubes and directives only to administrators; other permitted users
+receive empty lists. Registering and updating cubes requires `admin`.
 
-Retrieve an administrator API token from the Rails console:
+Retrieve an administrator API token with the Rails task:
 
 ```sh
 docker compose exec borgconfig bin/rails users:api_token
@@ -143,8 +144,41 @@ Configure an MCP client with:
 - URL: `http://localhost:3000/mcp`
 - Authorization header: `Bearer <user-api-token>`
 
-The server currently provides tools for inspecting the current user, cubes,
-tags, and directives, plus `create_directives` for assigning work to cubes.
+The server provides these tools:
+
+| Tool | Purpose |
+| --- | --- |
+| `me` | Show the authenticated user's profile and role. |
+| `cubes` | List cubes, optionally filtered by ID, partial name, or tag. |
+| `register_cubes` | Approve a selected cube, or all unregistered cubes. |
+| `update_cube` | Rename a cube and add tags. |
+| `tags` | List tag names. |
+| `directives` | List directives, optionally filtered by ID. |
+| `directive_files` | List directive filenames and descriptions, excluding `borg_client.rb`. |
+| `create_directives` | Assign a directive to cubes selected by IDs or tags. |
+
+### Directive roles
+
+Each executable directive class declares its minimum user role with a class
+method, for example:
+
+```ruby
+def self.role
+  :member
+end
+```
+
+Roles are ordered `guest`, `member`, `editor`, `manager`, `admin`. The creation
+policy loads the selected file and compares its class's role with the current
+user's role; equal or higher roles are allowed. `ping.rb` requires `member`,
+while `command.rb` requires `admin`. Unknown filenames and unrecognized role
+values are rejected with an MCP tool error.
+
+Cube access is checked separately through the policy scope. Under the current
+scope, only administrators have target cubes, so a member's authorized ping
+request returns an empty list of directive IDs. Authorized requests without
+cube IDs or tags also create nothing. `borg_client.rb` is the cube runtime
+helper and is not an executable directive with a role method.
 
 ### Execute `ping.rb` on a cube
 
