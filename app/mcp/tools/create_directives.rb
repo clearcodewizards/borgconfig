@@ -33,7 +33,10 @@ module Tools
       MCP::Tool::Response.new([{ type: "text", text: directive_ids.to_json }],
                               error: false)
     rescue Pundit::NotAuthorizedError
-      MCP::Tool::Response.new([{ type: "text", text: "Not authorized to create directives." }], error: true)
+      MCP::Tool::Response.new(
+        [{ type: "text",
+           text: "Directive file is unavailable or your role does not meet its requirement." }], error: true
+      )
     end
   end
 end

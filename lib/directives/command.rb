@@ -5,6 +5,10 @@ class Command
     "Run a command on a cube"
   end
 
+  def self.role
+    :admin
+  end
+
   def self.run(arguments)
     output, = Open3.capture2e(arguments)
     output

@@ -18,15 +18,15 @@ module Tools
       end
     end
 
-    test "members cannot mutate cubes or create directives" do
+    test "members cannot mutate cubes but can create directives" do
       user = users(:one)
       user.update!(role: :member)
       context = { user_id: user.id }
       cube = Cube.create!(name: "Original", api_token: "authorization-token", registered: false)
 
-      assert_no_difference [ "Directive.count", "Tag.count" ] do
-        assert CreateDirectives.call(server_context: context, filename: "ping.rb", arguments: "",
-                                     cube_ids: [ cube.id ]).error?
+      assert_no_difference [ "Tag.count" ] do
+        assert_not CreateDirectives.call(server_context: context, filename: "ping.rb", arguments: "",
+                                         cube_ids: [ cube.id ]).error?
         assert RegisterCubes.call(server_context: context, id: cube.id).error?
         assert UpdateCube.call(server_context: context, id: cube.id, name: "Changed", tags: [ "new" ]).error?
       end
